@@ -1,0 +1,68 @@
+local http = require "socket.http"
+local ltn12 = require "socket.ltn12"
+local mime = require "socket.mime"
+
+-- http://w3.impa.br/~diego/software/luasocket/http.html
+local function http_request(url)
+	http.request{ 
+		url = url, 
+		sink = ltn12.sink.file(io.stdout)
+	}
+end
+
+-- https://stackoverflow.com/questions/32103600/uploading-an-image-using-luasocket
+local function file_upload(path, url)
+	local file = io.open(path, "rb")
+	local current = file:seek()      -- get current position
+	local file_size = file:seek("end")    -- get file size
+	file:seek("set", current)        -- restore position
+	
+	local resp = {}
+	local body,code,headers,status = http.request{
+		url = url,
+		method = "POST",
+		headers = {
+			["Content-Type"] = "application/x-www-form-urlencoded",
+			["Content-Length"] = file_size
+		},
+		source = ltn12.source.file(file),
+		sink = ltn12.sink.table(resp)
+	}
+	print(body,code,status)
+	if headers then
+		for k,v in pairs(headers) do
+			print(k,v)
+		end
+	end
+end
+
+-- http://w3.impa.br/~diego/software/luasocket/mime.html
+local function high_level_base64_encode(s)
+	local base64 = ltn12.filter.chain(
+		mime.encode("base64"),
+		mime.wrap("base64")
+	)
+	print(s, "=", base64(s))
+end
+
+-- http://w3.impa.br/~diego/software/luasocket/mime.html
+local function low_level_base64_encode(s)
+	print(s, "=", mime.b64(s))
+end
+
+-- http://w3.impa.br/~diego/software/luasocket/mime.html
+local function low_level_base64_decode(s)
+	print(s, "=", (mime.unb64(s)))
+end
+
+
+function init(self)
+	print("init")
+
+	--http_request("http://w3.impa.br/~diego/software/luasocket/http.html")
+	high_level_base64_encode("foobar")
+	low_level_base64_encode("foobar")
+	low_level_base64_decode("Zm9vYmFy")
+
+	file_upload("game.project", "http://www.csm-testcenter.org/test")
+end
