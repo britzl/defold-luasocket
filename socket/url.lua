@@ -49,7 +49,7 @@ local function make_set(t)
     return s
 end
 
--- these are allowed within a path segment, along with alphanum
+-- these are allowed withing a path segment, along with alphanum
 -- other characters must be escaped
 local segment_set = make_set {
     "-", "_", ".", "!", "~", "*", "'", "(",
@@ -59,16 +59,16 @@ local segment_set = make_set {
 local function protect_segment(s)
     return string.gsub(s, "([^A-Za-z0-9_])", function (c)
         if segment_set[c] then return c
-        else return string.format("%%%02X", string.byte(c)) end
+        else return string.format("%%%02x", string.byte(c)) end
     end)
 end
 
 -----------------------------------------------------------------------------
--- Unencodes a escaped hexadecimal string into its binary representation
+-- Encodes a string into its escaped hexadecimal representation
 -- Input
---   s: escaped hexadecimal string to be unencoded
+--   s: binary string to be encoded
 -- Returns
---   unescaped binary representation of escaped hexadecimal  binary
+--   escaped representation of string binary
 -----------------------------------------------------------------------------
 function _M.unescape(s)
     return (string.gsub(s, "%%(%x%x)", function(hex)
@@ -131,17 +131,17 @@ function _M.parse(url, default)
     if not url or url == "" then return nil, "invalid url" end
     -- remove whitespace
     -- url = string.gsub(url, "%s", "")
+    -- get fragment
+    url = string.gsub(url, "#(.*)$", function(f)
+        parsed.fragment = f
+        return ""
+    end)
     -- get scheme
     url = string.gsub(url, "^([%w][%w%+%-%.]*)%:",
         function(s) parsed.scheme = s; return "" end)
     -- get authority
     url = string.gsub(url, "^//([^/]*)", function(n)
         parsed.authority = n
-        return ""
-    end)
-    -- get fragment
-    url = string.gsub(url, "#(.*)$", function(f)
-        parsed.fragment = f
         return ""
     end)
     -- get query string
@@ -162,9 +162,9 @@ function _M.parse(url, default)
         function(u) parsed.userinfo = u; return "" end)
     authority = string.gsub(authority, ":([^:%]]*)$",
         function(p) parsed.port = p; return "" end)
-    if authority ~= "" then
+    if authority ~= "" then 
         -- IPv6?
-        parsed.host = string.match(authority, "^%[(.+)%]$") or authority
+        parsed.host = string.match(authority, "^%[(.+)%]$") or authority 
     end
     local userinfo = parsed.userinfo
     if not userinfo then return parsed end
@@ -183,9 +183,8 @@ end
 --   a stringing with the corresponding URL
 -----------------------------------------------------------------------------
 function _M.build(parsed)
-    --local ppath = _M.parse_path(parsed.path or "")
-    --local url = _M.build_path(ppath)
-    local url = parsed.path or ""
+    local ppath = _M.parse_path(parsed.path or "")
+    local url = _M.build_path(ppath)
     if parsed.params then url = url .. ";" .. parsed.params end
     if parsed.query then url = url .. "?" .. parsed.query end
     local authority = parsed.authority
@@ -194,7 +193,7 @@ function _M.build(parsed)
         if string.find(authority, ":") then -- IPv6?
             authority = "[" .. authority .. "]"
         end
-        if parsed.port then authority = authority .. ":" .. base.tostring(parsed.port) end
+        if parsed.port then authority = authority .. ":" .. parsed.port end
         local userinfo = parsed.userinfo
         if parsed.user then
             userinfo = parsed.user
@@ -220,7 +219,6 @@ end
 --   corresponding absolute url
 -----------------------------------------------------------------------------
 function _M.absolute(base_url, relative_url)
-    local base_parsed
     if base.type(base_url) == "table" then
         base_parsed = base_url
         base_url = _M.build(base_parsed)
@@ -243,7 +241,7 @@ function _M.absolute(base_url, relative_url)
                         relative_parsed.query = base_parsed.query
                     end
                 end
-            else
+            else    
                 relative_parsed.path = absolute_path(base_parsed.path or "",
                     relative_parsed.path)
             end
