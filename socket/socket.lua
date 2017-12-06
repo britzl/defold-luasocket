@@ -32,7 +32,7 @@ function _M.bind(host, port, backlog)
     err = "no info on address"
     for i, alt in base.ipairs(addrinfo) do
         if alt.family == "inet" then
-            sock, err = socket.tcp4()
+            sock, err = socket.tcp()
         else
             sock, err = socket.tcp6()
         end
