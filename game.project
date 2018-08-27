@@ -24,3 +24,6 @@ htmlfile = /index.html
 [library]
 include_dirs = socket, mime
 
+[native_extension]
+app_manifest = /generated.appmanifest
+
