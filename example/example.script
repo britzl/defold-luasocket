@@ -56,13 +56,22 @@ local function low_level_base64_decode(s)
 end
 
 
+local function get_addrinfo_async(url)
+	dns.getaddrinfo_a(url, function(self, info, err)
+		pprint(info)
+		if err then print(err) end
+	end)
+end
+
 function init(self)
 	print("init")
+	go.animate(".", "euler.z", go.PLAYBACK_LOOP_FORWARD, 359, go.EASING_LINEAR, 1)
 
 	--http_request("http://w3.impa.br/~diego/software/luasocket/http.html")
+	get_addrinfo_async("www.defold.com")
 	high_level_base64_encode("foobar")
 	low_level_base64_encode("foobar")
 	low_level_base64_decode("Zm9vYmFy")
 
-	file_upload("game.project", "http://www.csm-testcenter.org/test")
+	--file_upload("game.project", "http://www.csm-testcenter.org/test")
 end

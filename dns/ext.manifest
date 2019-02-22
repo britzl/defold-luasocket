@@ -1,0 +1,6 @@
+name: "DNS"
+
+#platforms:
+#    x86_64-osx:
+#        context:
+#            flags:  ["-pthreads"]
