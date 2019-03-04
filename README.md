@@ -10,3 +10,22 @@ Or point to the ZIP file of a [specific release](https://github.com/britzl/defol
 
 # Usage
 See the [documentation for LuaSocket](http://w3.impa.br/~diego/software/luasocket/) for an in-depth API specification and example use cases. Also refer to the example folder inside this project.
+
+# API extensions
+This version of LuaSocket also provides a number of additional API functions:
+
+### dns.getaddrinfo_a(hostname, listener)
+Asynchronous version of getaddrinfo() where the call to getaddinfo() happens in a separate thread.
+
+```Lua
+
+	dns.getaddrinfo_a("https://www.defold.com", function(self, addrinfo, err)
+		if err then
+			print(err)
+			return
+		end
+		for _,info in ipairs(addrinfo) do
+			print(info.family, info.addr)
+		end
+	end)
+```
