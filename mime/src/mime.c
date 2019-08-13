@@ -1,6 +1,8 @@
 #define LIB_NAME "Mime"
 #define MODULE_NAME "mime"
+#ifndef DLIB_LOG_DOMAIN
 #define DLIB_LOG_DOMAIN LIB_NAME
+#endif
 
 
 /*=========================================================================*\
